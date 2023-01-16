@@ -1,0 +1,12 @@
+{
+  "name": "tttultimate-ai",
+  "version": "1.0.0",
+  "description": "An AI for the game TicTacToe Ultimate using the Monte Carlo Tree Search concept",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "type": "module",
+  "author": "jobebe07",
+  "license": "ISC"
+}
