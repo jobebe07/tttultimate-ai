@@ -79,7 +79,7 @@ export default class Game {
     winner(state) {
         // array of the lockItems of the global field, basically a normal tictactoe field
         let array = []
-        let winner = Player.DEFAULT
+        let winner = false
         for(let row = 0; row <= 2; row++) {
             array[row] = []
             for(let col = 0; col <= 2; col++) {

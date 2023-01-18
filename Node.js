@@ -69,6 +69,19 @@ export default class Node {
     }
 
     /**
+     * Get all unexpanded play for this node.
+     * @return {Play[]} All unexpanded play for this node.
+     */
+    getUnexpandedPlays() {
+        let plays = []
+        for(let child of this.children.values()) {
+            if(child.node === null) plays.push(child.play)
+        }
+
+        return plays
+    }
+
+    /**
      * @return {boolean} Whether this node is fully expanded
      */
     isFullyExpanded() {
