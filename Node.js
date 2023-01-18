@@ -55,4 +55,43 @@ export default class Node {
 
         return childNode
     }
+
+    /**
+     * Get all legal plays for this node.
+     * @return {Play[]} All legal plays for this node.
+     */
+    getAllPlays() {
+        let plays = []
+        for(let child of this.children.values()) {
+            plays.push(child.play)
+        }
+        return plays
+    }
+
+    /**
+     * @return {boolean} Whether this node is fully expanded
+     */
+    isFullyExpanded() {
+        for(let child of this.children.values()) {
+            if(child.node === null) return false
+        }
+        return true
+    }
+
+    /**
+     * Whether this node is terminal in the game tree, NOT INCLUSIVE of termination due to winning.
+     * @return {boolean} Whether this node is a leaf in the tree.
+     */
+    isLeaf() {
+        return this.children.size === 0
+    }
+
+    /**
+     * Get the UCB1 value for this node.
+     * @param {number} biasParam - The square of the bias parameter in the UCB1 algorithm, defaults to 2.
+     * @return {number} The UCB1 value of this node.
+     */
+    getUCB1Value(biasParam = 2) {
+        return (this.n_wins / this.n_plays) + Math.sqrt(biasParam * Math.log(this.parent.n_plays) / this.n_plays);
+    }
 }

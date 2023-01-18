@@ -11,13 +11,13 @@ export default class Game {
      * @returns {GameState} The initial GameState
      */
     start() {
-        return new GameState([], new Board(), undefined, Player.CROSS)
+        return new GameState([], new Board(), Utils.chordsToNum(new Chords.From2D(1, 1)), Player.CROSS)
     }
 
     /**
      * Method to get the legal plays of a GameState
      * @param {GameState} state The GameState the legal plays should be calculated from
-     * @returns {Array} Array containing legal plays
+     * @returns {Play[]} Array containing legal plays
      */
     legalPlays(state) {
         let board = state.board
@@ -26,12 +26,12 @@ export default class Game {
             for (let col = 0; col <= 2; col++) {
                 for(let fieldRow = 0; fieldRow <= 2; fieldRow++) {
                     for(let fieldCol = 0; fieldCol <= 2; fieldCol++) {
-                        if(board[row][col][fieldRow][fieldCol] === Player.DEFAULT
+                        if(board.getField()[row][col][fieldRow][fieldCol] === Player.DEFAULT
                                 // check whether field is locked
                                 && !board.getLocked()[row][col].locked
                                 // check whether the play is in the forced field
-                                && (state.next === this.chordsToNum(new Chords.From2D(row, col)) || state.next === undefined)) {
-                            legalPlays.push(new Play(new Chords.From4D(row, col, fieldRow, fieldCol)))
+                                && (state.next === Utils.chordsToNum(new Chords.From2D(row, col)) || state.next === undefined)) {
+                            legalPlays.push(new Play(new Chords.From4D(row, col, fieldRow, fieldCol), state.player))
                         }
                     }
                 }
@@ -47,7 +47,7 @@ export default class Game {
      * @returns {Boolean}
      */
     isLegalPlay(state, play) {
-        return (this.legalPlays(state).find(val => val === play) !== undefined)
+        return (this.legalPlays(state).find(value => value.hash() === play.hash()) !== undefined)
     }
 
     /**
@@ -57,7 +57,7 @@ export default class Game {
      * @returns {GameState} The new state
      */
     nextState(state, play) {
-        if(!this.isLegalPlay(play)) throw new Error("Illegal play")
+        if(!this.isLegalPlay(state, play)) throw new Error("Illegal play")
 
         let newHistory = state.history.splice()
         newHistory.push(play)
@@ -79,15 +79,17 @@ export default class Game {
     winner(state) {
         // array of the lockItems of the global field, basically a normal tictactoe field
         let array = []
+        let winner = Player.DEFAULT
         for(let row = 0; row <= 2; row++) {
             array[row] = []
             for(let col = 0; col <= 2; col++) {
                 array[row][col] = state.locked[row][col].lockItem
             }
         }
-        let winner = this.checkField(array, Player.DEFAULT)
-
-        if(this.isFullGlobal(state)) {
+        
+        winner = Utils.checkField(array, Player.DEFAULT)
+        
+        if(Utils.isFullGlobal(state)) {
             winner = Player.DEFAULT
         }
 
