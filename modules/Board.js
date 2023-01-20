@@ -49,7 +49,7 @@ export default class Board {
     setLocked(chords, locked, player = Player.DEFAULT) {
         if(chords.type !== Chords.Type.FROM_2D) throw new Error("Invalid chords")
 
-        this.#locked[chords.row][chords.col].locked = true
+        this.#locked[chords.row][chords.col].locked = locked
         this.#locked[chords.row][chords.col].lockItem = player
     }
 }

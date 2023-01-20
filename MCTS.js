@@ -20,7 +20,7 @@ export default class MCTS {
             let bestPlay
             let bestUCB1 = -Infinity
             for(let play of plays) {
-                let childUCB1 = node.getChildNode(play).getUCB1(this.UBC1ExploreParam)
+                let childUCB1 = node.getChildNode(play).getUCB1Value(this.UBC1ExploreParam)
                 if(childUCB1 > bestUCB1) {
                     bestPlay = play
                     bestUCB1 = childUCB1
@@ -28,6 +28,7 @@ export default class MCTS {
             }
             // select node with best ucb1 score
             node = node.getChildNode(bestPlay)
+            console.log("selected a node")
         }
         return node
     }
@@ -62,9 +63,11 @@ export default class MCTS {
             let legalPlays = this.game.legalPlays(state)
             let index = Math.floor(Math.random() * legalPlays.length)
             let play = legalPlays[index]
-
+            
             state = this.game.nextState(state, play)
             winner = this.game.winner(state)
+
+            //console.log(legalPlays)
         }
         return winner
     }
@@ -92,7 +95,7 @@ export default class MCTS {
      * @param {GameState} state 
      */
     makeNode(state) {
-        if(!this.nodes.get(state.hash())) {
+        if(!this.nodes.has(state.hash())) {
             let unexpandedPlays = this.game.legalPlays(state)
             let node = new Node(null, null, state, unexpandedPlays)
             this.nodes.set(state.hash(), node)
@@ -109,10 +112,12 @@ export default class MCTS {
         let end = Date.now() + timeout * 1000
         while(Date.now() < end) {
             let node = this.select(state)
+            //console.log(this.game.getFieldVisual(node.state))
             let winner = this.game.winner(node.state)
             if(!node.isLeaf() && winner === false) {
                 node = this.expand(node)
                 winner = this.simulate(node)
+                console.log("TRUEE")
             }
             this.backpropagate(node, winner)
         }

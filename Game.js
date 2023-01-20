@@ -26,11 +26,11 @@ export default class Game {
             for (let col = 0; col <= 2; col++) {
                 for(let fieldRow = 0; fieldRow <= 2; fieldRow++) {
                     for(let fieldCol = 0; fieldCol <= 2; fieldCol++) {
-                        if(board.getField()[row][col][fieldRow][fieldCol] === Player.DEFAULT
+                        if(board.getField()[row][col][fieldRow][fieldCol] == Player.DEFAULT
                                 // check whether field is locked
                                 && !board.getLocked()[row][col].locked
                                 // check whether the play is in the forced field
-                                && (state.next === Utils.chordsToNum(new Chords.From2D(row, col)) || state.next === undefined)) {
+                                && (state.next == Utils.chordsToNum(new Chords.From2D(row, col)) || state.next === undefined)) {
                             legalPlays.push(new Play(new Chords.From4D(row, col, fieldRow, fieldCol), state.player))
                         }
                     }
@@ -47,7 +47,7 @@ export default class Game {
      * @returns {Boolean}
      */
     isLegalPlay(state, play) {
-        return (this.legalPlays(state).find(value => value.hash() === play.hash()) !== undefined)
+        return (this.legalPlays(state).find(value => value.hash() == play.hash()) !== undefined)
     }
 
     /**
@@ -57,16 +57,28 @@ export default class Game {
      * @returns {GameState} The new state
      */
     nextState(state, play) {
-        if(!this.isLegalPlay(state, play)) throw new Error("Illegal play")
+        //if(!this.isLegalPlay(state, play)) throw new Error("Illegal play")
 
         let newHistory = state.history.splice()
         newHistory.push(play)
 
         let newBoard = state.board
         newBoard.set(play.chords, play.player)
+        let winnerInField = Utils.checkField(newBoard.getField()[play.chords.row][play.chords.col], Player.DEFAULT)
+        if(winnerInField !== false) {
+            newBoard.setLocked(new Chords.From2D(play.chords.row, play.chords.col), true, winnerInField)
+        }
 
         let newNext = Utils.chordsToNum(new Chords.From2D(play.fieldRow, play.fieldCol))
-        let newPlayer = (state.player === Player.CROSS ? Player.CIRCLE : Player.CROSS)
+
+        // free choice if next field is either locked
+        if(newBoard.getLocked()[play.fieldRow][play.fieldCol].locked
+        // or full
+                || Utils.isFull(state, new Chords.From2D(play.fieldRow, play.fieldCol))) {
+            newNext = undefined
+        }
+
+        let newPlayer = (state.player == Player.CROSS ? Player.CIRCLE : Player.CROSS)
 
         return new GameState(newHistory, newBoard, newNext, newPlayer)
     }
@@ -83,7 +95,7 @@ export default class Game {
         for(let row = 0; row <= 2; row++) {
             array[row] = []
             for(let col = 0; col <= 2; col++) {
-                array[row][col] = state.locked[row][col].lockItem
+                array[row][col] = state.board.getLocked()[row][col].lockItem
             }
         }
         
@@ -94,5 +106,25 @@ export default class Game {
         }
 
         return winner
+    }
+
+    getFieldVisual(state) {
+        // TODO check winner doesnt works
+        let board = state.board
+        let msg = ""
+        for(let row = 0; row <= 2; row++) {
+            for(let fieldRow = 0; fieldRow <= 2; fieldRow++) {
+                for(let col = 0; col <= 2; col++) {
+                    for(let fieldCol = 0; fieldCol <= 2; fieldCol++) {
+                        msg+=board.getField()[row][col][fieldRow][fieldCol] + " "
+                    }
+                    msg+=" "
+                }
+                msg+="\n"
+            }
+            msg = msg + board.getLocked()[row][0].locked + board.getLocked()[row][1].locked + board.getLocked()[row][2].locked + "\n"
+        }
+        msg+="-----------------------"
+        return msg
     }
 }
