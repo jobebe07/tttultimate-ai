@@ -59,10 +59,10 @@ export default class Game {
     nextState(state, play) {
         //if(!this.isLegalPlay(state, play)) throw new Error("Illegal play")
 
-        let newHistory = state.history.splice()
+        let newHistory = state.clone().history.splice()
         newHistory.push(play)
 
-        let newBoard = state.board
+        let newBoard = state.clone().board
         newBoard.set(play.chords, play.player)
         let winnerInField = Utils.checkField(newBoard.getField()[play.chords.row][play.chords.col], Player.DEFAULT)
         if(winnerInField !== false) {
@@ -74,7 +74,7 @@ export default class Game {
         // free choice if next field is either locked
         if(newBoard.getLocked()[play.fieldRow][play.fieldCol].locked
         // or full
-                || Utils.isFull(state, new Chords.From2D(play.fieldRow, play.fieldCol))) {
+                || Utils.isFull(state.clone(), new Chords.From2D(play.fieldRow, play.fieldCol))) {
             newNext = undefined
         }
 

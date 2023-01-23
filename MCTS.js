@@ -28,7 +28,7 @@ export default class MCTS {
             }
             // select node with best ucb1 score
             node = node.getChildNode(bestPlay)
-            console.log("selected a node")
+            //console.log("selected a node")
         }
         return node
     }
@@ -45,9 +45,10 @@ export default class MCTS {
 
         let childState = this.game.nextState(node.state, play)
         let legalPlays = this.game.legalPlays(childState)
-        let childNode = new Node(node, play, childState, legalPlays)
+        let childNode = node.expand(play, childState, legalPlays)
 
         this.nodes.set(childState.hash(), childNode)
+        //console.log(childNode)
         return childNode
     }
 
@@ -57,7 +58,7 @@ export default class MCTS {
      * @param {Node} node 
      */
     simulate(node) {
-        let state = node.state
+        let state = node.state.clone()
         let winner = this.game.winner(state)
         while(winner === false) {
             let legalPlays = this.game.legalPlays(state)
@@ -84,6 +85,9 @@ export default class MCTS {
             // Update win counter when it was a win for the current player of the *node*!!!
             if(node.state.player === winner) {
                 node.n_wins++
+                //console.log("win")
+            } else {
+                //console.log("no win")
             }
 
             node = node.parent
@@ -112,15 +116,18 @@ export default class MCTS {
         let end = Date.now() + timeout * 1000
         while(Date.now() < end) {
             let node = this.select(state)
+            //console.log(node)
             //console.log(this.game.getFieldVisual(node.state))
             let winner = this.game.winner(node.state)
-            if(!node.isLeaf() && winner === false) {
+            //console.log(winner)
+            if(!node.isLeaf() && winner == false) {
                 node = this.expand(node)
                 winner = this.simulate(node)
-                console.log("TRUEE")
+                console.log("AND THE WINNER IS: " + winner)
             }
             this.backpropagate(node, winner)
         }
+        //console.log(this.nodes)
     }
 
     /**
@@ -129,11 +136,13 @@ export default class MCTS {
      */
     bestPlay(state) {
         this.makeNode(state)
+
+        let node = this.nodes.get(state.hash())
+        console.log(node)
         
         if(node.isFullyExpanded() === false) throw new Error("Not enough statistics")
         
-        let node = this.nodes.get(state.hash())
-        let allPlays = node.allPlays()
+        let allPlays = node.getAllPlays()
         let bestPlay
         let max = -Infinity
         for(let play of allPlays) {

@@ -11,4 +11,8 @@ export default class GameState {
     hash() {
         return JSON.stringify(this.history)
     }
+
+    clone() {
+        return new GameState(this.history, this.board, this.next, this.player)
+    }
 }

@@ -53,7 +53,7 @@ export default class Node {
 
         this.children.set(play.hash(), {play: play, node: childNode})
 
-        console.log("Expanded")
+        //console.log("Expanded")
         return childNode
     }
 

@@ -10,5 +10,10 @@ let initialState = game.start()
 
 mcts.makeNode(initialState)
 let node = mcts.nodes.get(initialState.hash())
+console.log(node)
+console.log(mcts.simulate(node))
+console.log(node)
+
+console.log(mcts.select(initialState))
 
 //console.log(mcts.simulate(node))
